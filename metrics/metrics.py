@@ -12,6 +12,8 @@ class LogFile(luigi.ExternalTask):
 class TotalHitsTask(luigi.contrib.hadoop.JobTask):
     date_interval = luigi.DateIntervalParameter()
 
+    n_reduce_tasks = 1
+
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget("/user/agolomedov/total_hits_{}".format(self.date_interval))
 
