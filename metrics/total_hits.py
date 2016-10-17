@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import luigi
+import luigi.contrib.hadoop
 from common.luigi_helper import LogFile
 
 class TotalHitsTask(luigi.contrib.hadoop.JobTask):
