@@ -2,6 +2,17 @@
 
 import luigi
 import luigi.contrib.hadoop
+import re
+
+def parse_line(line):
+    pat = '([(\d\.)]+) - - \[(.*?)\] "(.*?)" (\d+) (\d+) "(.*?)" "(.*?)"'
+
+    record = re.match(pat, line).groups()
+
+    return {
+        'code': int(record[3]),
+        'ip': record[0]
+    }
 
 class LogFile(luigi.ExternalTask):    
     date = luigi.DateParameter()
@@ -21,7 +32,8 @@ class TotalHitsTask(luigi.contrib.hadoop.JobTask):
         return [LogFile(date) for date in self.date_interval]
 
     def mapper(self, line):
-        yield "total_hits", 1
+        if parse_line(line)['code'] == 200:
+            yield "total_hits", 1        
 
     def reducer(self, key, values):
         yield key, sum(values)
