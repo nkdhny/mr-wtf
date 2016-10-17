@@ -4,9 +4,9 @@ import luigi
 from common.luigi_helper import LogFile
 
 class TotalHitsTask(luigi.contrib.hadoop.JobTask):
-	date_interval = luigi.DateIntervalParameter()
+    date_interval = luigi.DateIntervalParameter()
 
-	def output(self):
+    def output(self):
         return luigi.contrib.hdfs.HdfsTarget("user/agolomedov/total_hits_{}".format(self.date_interval))
 
     def requires(self):
