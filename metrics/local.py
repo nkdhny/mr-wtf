@@ -1,7 +1,7 @@
 import luigi
 import datetime
 from .metrics import TotalHitsTask
-from config import *
+from config import AppConfig
 import shutil
 
 class LocalTotalHitsMetric(luigi.Task):
@@ -11,7 +11,7 @@ class LocalTotalHitsMetric(luigi.Task):
 		return TotalHitsTask(date=self.date)
 
 	def output(self):
-		return luigi.LocalTarget(path='{}/total_hits_{}'.format(self.date))
+		return luigi.LocalTarget(path='{}/total_hits_{}'.format(AppConfig.metrics_path, self.date))
 
 	def run(self):
 		with self.input().open() as i:
