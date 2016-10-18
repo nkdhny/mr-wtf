@@ -3,6 +3,7 @@
 import luigi
 import luigi.contrib.hadoop
 import re
+import datetime
 
 def parse_line(line):
     pat = '([(\d\.)]+) - - \[(.*?)\] "(.*?)" (\d+) (\d+) "(.*?)" "(.*?)"'
@@ -21,15 +22,15 @@ class LogFile(luigi.ExternalTask):
         return luigi.contrib.hdfs.HdfsTarget(self.date.strftime('/user/sandello/logs/access.log.%Y-%m-%d'))
 
 class TotalHitsTask(luigi.contrib.hadoop.JobTask):
-    date_interval = luigi.DateIntervalParameter()
+    date = luigi.DateParameter(default=datetime.date.today() - datetime.timedelta(days=1))
 
     n_reduce_tasks = 1
 
     def output(self):
-        return luigi.contrib.hdfs.HdfsTarget("/user/agolomedov/total_hits_{}".format(self.date_interval))
+        return luigi.contrib.hdfs.HdfsTarget("/user/agolomedov/total_hits_{}".format(self.date))
 
     def requires(self):
-        return [LogFile(date) for date in self.date_interval]
+        return LogFile(self.date)
 
     def mapper(self, line):
         if parse_line(line)['code'] == 200:
