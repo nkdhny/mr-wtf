@@ -27,7 +27,7 @@ class TotalHitsTask(luigi.contrib.hadoop.JobTask):
     n_reduce_tasks = 1
 
     def output(self):
-        return luigi.contrib.hdfs.HdfsTarget("/user/agolomedov/total_hits_{}".format(self.date))
+        return luigi.contrib.hdfs.HdfsTarget("/user/agolomedov/total_hits_{}".format(self.date), format=luigi.contrib.hdfs.PlainDir)
 
     def requires(self):
         return LogFile(self.date)

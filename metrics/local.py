@@ -14,6 +14,6 @@ class LocalTotalHitsMetric(luigi.Task):
         return luigi.LocalTarget(path='{}/total_hits_{}'.format(AppConfig.metrics_path, self.date))
 
     def run(self):
-        with self.input().open() as i:
+        with self.input().open('r') as i:
             with self.output().open('w') as o:
                 shutil.copyfileobj(i, o)
