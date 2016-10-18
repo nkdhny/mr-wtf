@@ -7,7 +7,7 @@ import shutil
 class LocalTotalHitsMetric(luigi.Task):
 	date=luigi.DateParameter(default=datetime.date.today() - datetime.timedelta(days=1))
 
-	def requres(self):
+	def requires(self):
 		return TotalHitsTask(date=self.date)
 
 	def output(self):
