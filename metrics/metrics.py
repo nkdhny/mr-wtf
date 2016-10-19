@@ -69,6 +69,7 @@ class UniqueUsersTask(Metric):
 
     def reducer(self, key, values):
         self.total_users += 1
+        yield []
 
     def final_reducer(self):
         yield "total_users", self.total_users
