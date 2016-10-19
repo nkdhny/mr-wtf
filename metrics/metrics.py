@@ -4,6 +4,8 @@ import luigi
 import luigi.contrib.hadoop
 import re
 import datetime
+import random
+
 
 def parse_line(line):
     pat = '([(\d\.)]+) - - \[(.*?)\] "(.*?)" (\d+) (\d+) "(.*?)" "(.*?)"'
@@ -12,7 +14,8 @@ def parse_line(line):
 
     return {
         'code': int(record[3]),
-        'ip': record[0]
+        'ip': record[0],
+        'epoch': random.randint(0, 10)
     }
 
 class LogFile(luigi.ExternalTask):    
@@ -24,6 +27,9 @@ class LogFile(luigi.ExternalTask):
 class Metric(luigi.contrib.hadoop.JobTask):
     date = luigi.DateParameter(default=datetime.date.today() - datetime.timedelta(days=1))
 
+    def requires(self):
+        return LogFile(self.date)
+
 
 class TotalHitsTask(Metric):
     n_reduce_tasks = 1
@@ -33,9 +39,6 @@ class TotalHitsTask(Metric):
                 "/user/agolomedov/total_hits_{}".format(self.date),
                 format=luigi.contrib.hdfs.PlainDir
         )
-
-    def requires(self):
-        return LogFile(self.date)
 
     def mapper(self, line):
         if parse_line(line)['code'] == 200:
@@ -56,9 +59,6 @@ class UniqueUsersTask(Metric):
                 format=luigi.contrib.hdfs.PlainDir
         )
 
-    def requires(self):
-        return LogFile(self.date)
-
     def mapper(self, line):
         record = parse_line(line)
         if record['code'] == 200:
@@ -73,3 +73,34 @@ class UniqueUsersTask(Metric):
 
     def final_reducer(self):
         yield "total_users", self.total_users
+
+
+class MarkUserSessionTask(Metric):
+
+    n_reduce_tasks = 3
+
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/user_sessions_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
+
+    def jobconfs(self):
+        jcf = super(MarkUserSessionTask, self).jobconfs()
+
+        jcf.append("stream.num.map.output.key.fields=2")
+        jcf.append("mapred.text.key.partitioner.options=-k1,1")
+
+        jcf.append("mapred.output.key.comparator.class=org.apache.hadoop.mapred.lib.KeyFieldBasedComparator")
+        jcf.append("mapred.text.key.comparator.options=-k1,2")
+
+        return jcf
+
+    def mapper(self, line):
+        record = parse_line(line)
+
+        if record['code'] == 200:
+            yield record['ip'],  record['epoch'], record['url']
+
+    def reducer(self, key, value):
+        yield key
