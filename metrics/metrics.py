@@ -64,12 +64,12 @@ class UniqueUsersTask(Metric):
         if record['code'] == 200:
             yield record['ip'], 1
 
-
     def init_reducer(self):
         self.total_users = 0
 
     def reducer(self, key, values):
         self.total_users += 1
+        yield None
 
     def final_reducer(self):
         yield "total_users", self.total_users
