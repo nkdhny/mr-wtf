@@ -32,7 +32,7 @@ class LocalTotalHitsMetric(LocalMetric):
 
 class LocalTotalUsersMetric(LocalMetric):
     def _depends_on(self):
-        UniqueUsersTask(date=self.date)
+        return UniqueUsersTask(date=self.date)
 
 
 class AllMetrics(luigi.WrapperTask):
