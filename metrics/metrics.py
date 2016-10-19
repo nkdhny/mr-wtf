@@ -15,7 +15,7 @@ def parse_line(line):
     return {
         'code': int(record[3]),
         'ip': record[0],
-        'epoch': random.randint(0, 10)
+        'epoch': random.randint(0, 10),
         'file': 'some_file'
     }
 
