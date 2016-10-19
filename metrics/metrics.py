@@ -16,6 +16,7 @@ def parse_line(line):
         'code': int(record[3]),
         'ip': record[0],
         'epoch': random.randint(0, 10)
+        'file': 'some_file'
     }
 
 class LogFile(luigi.ExternalTask):    
@@ -100,7 +101,7 @@ class MarkUserSessionTask(Metric):
         record = parse_line(line)
 
         if record['code'] == 200:
-            yield record['ip'],  record['epoch'], record['url']
+            yield record['ip'],  record['epoch'], record['file']
 
     def reducer(self, key, value):
         yield key
