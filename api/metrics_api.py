@@ -1,7 +1,7 @@
 from flask import jsonify
 from api import app
 from flask import request
-from metrics.local import LocalTotalHitsMetric
+from metrics.local import LocalTotalHitsMetric, LocalTotalUsersMetric
 import datetime
 import logging
 from flask import abort
@@ -9,18 +9,20 @@ from flask import abort
 class MetricNotReady(Exception):
     pass
 
-def read_total_hits(file_obj):
+def read_simple_metric(file_obj):
     with file_obj.open() as o:
         return int(o.readline().split()[1])
 
 def metrics_for_day(day):
     total_hits = LocalTotalHitsMetric(date=day)
+    total_users = LocalTotalUsersMetric(date=day)
 
     if any([not x.complete() for x in [total_hits]]):
         raise MetricNotReady
 
     return {
-        'total_hits': read_total_hits(total_hits.output())
+        'total_hits': read_simple_metric(total_hits.output()),
+        'total_users': read_simple_metric(total_users.output())
     }
 
 @app.route('/api/hw1')

@@ -21,13 +21,18 @@ class LogFile(luigi.ExternalTask):
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(self.date.strftime('/user/sandello/logs/access.log.%Y-%m-%d'))
 
-class TotalHitsTask(luigi.contrib.hadoop.JobTask):
+class Metric(luigi.contrib.hadoop.JobTask):
     date = luigi.DateParameter(default=datetime.date.today() - datetime.timedelta(days=1))
 
+
+class TotalHitsTask(Metric):
     n_reduce_tasks = 1
 
     def output(self):
-        return luigi.contrib.hdfs.HdfsTarget("/user/agolomedov/total_hits_{}".format(self.date), format=luigi.contrib.hdfs.PlainDir)
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/total_hits_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
 
     def requires(self):
         return LogFile(self.date)
@@ -38,5 +43,35 @@ class TotalHitsTask(luigi.contrib.hadoop.JobTask):
 
     def reducer(self, key, values):
         yield key, sum(values)
+
+    combiner = reducer
+
+
+class UniqueUsersTask(Metric):
+    n_reduce_tasks = 1
+
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/total_users_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
+
+    def requires(self):
+        return LogFile(self.date)
+
+    def mapper(self, line):
+        record = parse_line(line)
+        if record['code'] == 200:
+            yield record['ip'], 1
+
+
+    def init_reducer(self):
+        self.total_users = 0
+
+    def reducer(self, key, values):
+        self.total_users += 1
+
+    def final_reducer(self):
+        yield "total_users", self.total_users
 
     combiner = reducer
