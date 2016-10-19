@@ -5,7 +5,7 @@ from config import AppConfig
 import shutil
 import luigi.task
 
-class LocalMetric(luigi.task):
+class LocalMetric(luigi.Task):
 
     date=luigi.DateParameter(default=datetime.date.today() - datetime.timedelta(days=1))
 
