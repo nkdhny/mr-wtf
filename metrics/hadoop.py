@@ -5,6 +5,7 @@ import luigi.contrib.hadoop
 import re
 import datetime
 import random
+from config import AppConfig
 
 
 def parse_line(line):
@@ -97,4 +98,6 @@ class MarkUserSessionTask(ExternalMetric):
     def run(self):
         from .streaming.sessions import run
 
-        run.run_map_reduce(self.input().path, self.output().path, self.task_id, self.n_reduce_tasks)
+        run.run_map_reduce(
+                self.input().path, self.output().path, self.task_id,
+                self.n_reduce_tasks, AppConfig.streaming_root+'sessions')

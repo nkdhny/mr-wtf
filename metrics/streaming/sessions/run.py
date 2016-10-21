@@ -1,5 +1,4 @@
 from subprocess import Popen
-from config import AppConfig
 
 def build_hadoop_command(input, output, n_reducers=3, job_name=None):
     command = [
@@ -23,8 +22,8 @@ def build_hadoop_command(input, output, n_reducers=3, job_name=None):
 
     return command
 
-def run_map_reduce(input, output, job_name, reducers):
+def run_map_reduce(input, output, job_name, reducers, cwd):
     return Popen(build_hadoop_command(input, output, n_reducers=reducers, job_name=job_name),
-                 cwd=AppConfig.streaming_root+'sessions').wait()
+                 cwd=cwd).wait()
 
 
