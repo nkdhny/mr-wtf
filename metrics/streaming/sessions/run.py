@@ -14,7 +14,7 @@ def build_hadoop_command(input, output, n_reducers=3, job_name=None):
         '-output', '{}'.format(output),
         '-mapper', './map.py',
         '-partitioner', 'org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner',
-        '-reducer', 'cat'
+        '-reducer', './reduce.py'
     ]
 
 def run_map_reduce(input, output, job_name, reducers, cwd):
