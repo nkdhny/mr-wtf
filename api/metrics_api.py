@@ -1,7 +1,7 @@
 from flask import jsonify
 from api import app
 from flask import request
-from metrics.local import LocalTotalHitsMetric, LocalTotalUsersMetric
+from metrics.local import LocalTotalHitsMetric, LocalTotalUsersMetric, LocalUserSessionLength
 import datetime
 import logging
 from flask import abort
@@ -16,13 +16,15 @@ def read_simple_metric(file_obj):
 def metrics_for_day(day):
     total_hits = LocalTotalHitsMetric(date=day)
     total_users = LocalTotalUsersMetric(date=day)
+    session_length = LocalUserSessionLength(date=day)
 
     if any([not x.complete() for x in [total_hits]]):
         raise MetricNotReady
 
     return {
         'total_hits': read_simple_metric(total_hits.output()),
-        'total_users': read_simple_metric(total_users.output())
+        'total_users': read_simple_metric(total_users.output()),
+        'average_session_length': read_simple_metric(session_length.output())
     }
 
 @app.route('/api/hw1')
