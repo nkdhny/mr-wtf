@@ -33,6 +33,9 @@ class Metric(luigi.contrib.hadoop.JobTask):
         return LogFile(self.date)
 
 
+class DerivativeMetric(luigi.contrib.hadoop.JobTask):
+    date = luigi.DateParameter(default=datetime.date.today() - datetime.timedelta(days=1))
+
 class ExternalMetric(luigi.Task):
     date = luigi.DateParameter(default=datetime.date.today() - datetime.timedelta(days=1))
 
@@ -101,3 +104,38 @@ class MarkUserSessionTask(ExternalMetric):
         run.run_map_reduce(
                 self.input().path, self.output().path, self.task_id,
                 self.n_reduce_tasks, AppConfig.streaming_root+'sessions')
+
+
+class SessionLengthTask(DerivativeMetric):
+
+    n_reduce_tasks = 1
+
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(
+            "/user/agolomedov/user_session_length_{}".format(self.date),
+            format=luigi.contrib.hdfs.PlainDir
+        )
+
+    def map(self, line):
+        ip, sessions = line.split()
+        sessions = int(sessions)
+
+        yield "sessions", sessions, 1
+
+    def combiner(self, key, values):
+        weight = 0
+        values_sum = 0
+        for v, w in values:
+            weight += w
+            values_sum += w * v
+
+        yield key, values_sum / float(weight), weight
+
+    def reducer(self, key, values):
+        weight = 0
+        values_sum = 0
+        for v, w in values:
+            weight += w
+            values_sum += w * v
+
+        yield key, values_sum / float(weight)

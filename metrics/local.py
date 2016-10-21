@@ -1,6 +1,6 @@
 import luigi
 import datetime
-from .hadoop import TotalHitsTask, UniqueUsersTask
+from .hadoop import TotalHitsTask, UniqueUsersTask, SessionLengthTask
 from config import AppConfig
 import shutil
 import luigi.task
@@ -33,6 +33,11 @@ class LocalTotalHitsMetric(LocalMetric):
 class LocalTotalUsersMetric(LocalMetric):
     def _depends_on(self):
         return UniqueUsersTask(date=self.date)
+
+
+class LocalUserSessionLength(LocalMetric):
+    def _depends_on(self):
+        return SessionLengthTask(date=self.date)
 
 
 class AllMetrics(luigi.WrapperTask):
