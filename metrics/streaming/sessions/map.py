@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 
 import re
-import random
+import datetime
 import sys
 
 
 def parse_line(line):
-    pat = '([(\d\.)]+) - - \[(.*?)\] "(.*?)" (\d+) (\d+) "(.*?)" "(.*?)"'
+    pat = '([\d\.:]+) - - \[(\S+) [^"]+\] "(\w+) ([^"]+) (HTTP/[\d\.]+)" (\d+) \d+ "([^"]+)" "([^"]+)"'
 
     record = re.match(pat, line).groups()
 
     return {
-        'code': int(record[3]),
+        'code': int(record[5]),
         'ip': record[0],
-        'epoch': random.randint(0, 10),
-        'file': 'some_file'
+        'epoch': (
+            datetime.datetime.strptime(
+                    record[1], "%d/%b/%Y:%H:%M:%S") -
+            datetime.datetime(year=1970, month=1, day=1)).total_seconds(),
     }
 
 

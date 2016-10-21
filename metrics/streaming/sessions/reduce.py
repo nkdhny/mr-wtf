@@ -12,26 +12,35 @@ def parse_line(line):
 
 
 class SessionsReducer(object):
+    session_ttl = 30 * 60 * 60 #seconds
+
     def __init__(self):
         self._prev_ip = None
-        self._collected_epochs = []
+        self._prev_visit = 0
+        self._session_length = 0
+
+    def _is_same_session(self, epoch):
+        return epoch - self._prev_visit <= SessionsReducer.session_ttl
 
     def flush(self):
-        print "{}\t{}".format(self._prev_ip, ';'.join([str(x) for x in self._collected_epochs]))
+        print "{}\t{}".format(self._prev_ip, self._session_length)
 
     def __call__(self, line):
-        global _sessions_reduce_prev_ip
-        global _sessions_collected_epochs
 
         record = parse_line(line)
 
         if self._prev_ip != record['ip']:
             if self._prev_ip is not None:
                 self.flush()
+
             self._prev_ip = record['ip']
-            self._collected_epochs = [record['epoch']]
+            self._session_length = 1
+
         else:
-            self._collected_epochs.append(record['epoch'])
+            if not self._is_same_session(record['epoch']):
+                self._session_length += 1
+
+        self._prev_visit = record['epoch']
 
 
 if __name__ == '__main__':
