@@ -1,6 +1,6 @@
 import luigi
 import datetime
-from .metrics import TotalHitsTask, UniqueUsersTask
+from .hadoop import TotalHitsTask, UniqueUsersTask
 from config import AppConfig
 import shutil
 import luigi.task

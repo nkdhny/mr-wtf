@@ -32,6 +32,14 @@ class Metric(luigi.contrib.hadoop.JobTask):
         return LogFile(self.date)
 
 
+class ExternalMetric(luigi.Task):
+    date = luigi.DateParameter(default=datetime.date.today() - datetime.timedelta(days=1))
+
+    def requires(self):
+        return LogFile(self.date)
+
+
+
 class TotalHitsTask(Metric):
     n_reduce_tasks = 1
 
@@ -76,7 +84,7 @@ class UniqueUsersTask(Metric):
         yield "total_users", self.total_users
 
 
-class MarkUserSessionTask(Metric):
+class MarkUserSessionTask(ExternalMetric):
 
     n_reduce_tasks = 3
 
@@ -86,22 +94,7 @@ class MarkUserSessionTask(Metric):
                 format=luigi.contrib.hdfs.PlainDir
         )
 
-    def jobconfs(self):
-        jcf = super(MarkUserSessionTask, self).jobconfs()
+    def run(self):
+        from .streaming.sessions import run
 
-        jcf.append("stream.num.map.output.key.fields=2")
-        jcf.append("mapred.text.key.partitioner.options=-k1,1")
-
-        jcf.append("mapred.output.key.comparator.class=org.apache.hadoop.mapred.lib.KeyFieldBasedComparator")
-        jcf.append("mapred.text.key.comparator.options=-k1,2")
-
-        return jcf
-
-    def mapper(self, line):
-        record = parse_line(line)
-
-        if record['code'] == 200:
-            yield record['ip'],  record['epoch'], record['file']
-
-    def reducer(self, key, value):
-        yield key
+        run.run_map_reduce(self.input().path, self.output().path, self.task_id, self.n_reduce_tasks)
