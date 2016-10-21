@@ -110,6 +110,9 @@ class SessionLengthTask(DerivativeMetric):
 
     n_reduce_tasks = 1
 
+    def requires(self):
+        return MarkUserSessionTask(date=self.date)
+
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(
             "/user/agolomedov/user_session_length_{}".format(self.date),
