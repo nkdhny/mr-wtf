@@ -30,6 +30,8 @@ class SessionsReducer(object):
                 self.flush()
             self._prev_ip = record['ip']
             self._collected_epochs = [record['epoch']]
+        else:
+            self._collected_epochs.append(record['epoch'])
 
 
 if __name__ == '__main__':
