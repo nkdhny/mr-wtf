@@ -118,7 +118,7 @@ class SessionLengthTask(DerivativeMetric):
             format=luigi.contrib.hdfs.PlainDir
         )
 
-    def map(self, line):
+    def mapper(self, line):
         ip, sessions = line.split()
         sessions = int(sessions)
 
