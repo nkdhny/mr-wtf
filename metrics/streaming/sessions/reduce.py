@@ -7,7 +7,7 @@ def parse_line(line):
 
     return {
         'ip': record[0],
-        'epoch': int(record[1])
+        'epoch': float(record[1])
     }
 
 
