@@ -1,5 +1,5 @@
 from api import app
-from api import metrics_api
+from config import AppConfig
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=AppConfig.api_port)
