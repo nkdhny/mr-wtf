@@ -11,10 +11,11 @@ class MetricNotReady(Exception):
 
 def read_simple_metric(file_obj):
     with file_obj.open() as o:
+        line = o.readline()
         try:
-            return int(o.readline().split()[1])
+            return int(line.split()[1])
         except ValueError:
-            return float(o.readline().split()[1])
+            return float(line.split()[1])
 
 def metrics_for_day(day):
     total_hits = LocalTotalHitsMetric(date=day)
