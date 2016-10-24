@@ -122,21 +122,23 @@ class SessionLengthTask(DerivativeMetric):
         ip, sessions = line.split()
         sessions = int(sessions)
 
-        yield "sessions", sessions, 1
+        yield "sessions", '{};{}'.format(sessions, 1)
 
     def combiner(self, key, values):
         weight = 0
         values_sum = 0
-        for v, w in values:
+        for v_w in values:
+            v, w = v_w.split(';')
             weight += w
             values_sum += w * v
 
-        yield key, values_sum / float(weight), weight
+        yield key, '{};{}'.format(values_sum / float(weight), weight)
 
     def reducer(self, key, values):
         weight = 0
         values_sum = 0
-        for v, w in values:
+        for v_w in values:
+            v, w = v_w.split(';')
             weight += w
             values_sum += w * v
 
