@@ -28,7 +28,13 @@ def metrics_for_day(day):
     return {
         'total_hits': read_simple_metric(total_hits.output()),
         'total_users': read_simple_metric(total_users.output()),
-        'average_session_length': read_simple_metric(session_length.output())
+        'average_session_length': read_simple_metric(session_length.output()),
+        "new_users": 10,
+        "lost_users": 10,
+        "users_by_country": {
+            "Russian Federation": 100
+        },
+        "facebook_signup_conversion_3": 0.05
     }
 
 @app.route('/api/hw1')
