@@ -129,6 +129,9 @@ class SessionLengthTask(DerivativeMetric):
         values_sum = 0
         for v_w in values:
             v, w = v_w.split(';')
+            v = float(v)
+            w = float(w)
+
             weight += w
             values_sum += w * v
 
@@ -139,6 +142,9 @@ class SessionLengthTask(DerivativeMetric):
         values_sum = 0
         for v_w in values:
             v, w = v_w.split(';')
+            v = float(v)
+            w = float(w)
+
             weight += w
             values_sum += w * v
 
