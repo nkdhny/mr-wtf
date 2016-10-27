@@ -47,6 +47,12 @@ class ExternalMetric(luigi.Task):
     def requires(self):
         return LogFile(self.date)
 
+class ExternalMetricWithLag(luigi.Task):
+    date = luigi.DateParameter(default=datetime.date.today() - datetime.timedelta(days=1))
+    lag = 1
+
+    def requires(self):
+        return [LogFile(self.date - datetime.timedelta(days=x)) for x in range(self.lag)]
 
 
 class TotalHitsTask(Metric):
@@ -157,11 +163,14 @@ class SessionLengthTask(DerivativeMetric):
         yield key, values_sum / float(weight)
 
 
-class UsersByCountry(Metric):
+class UsersByCountryMetric(Metric):
 
     locations_file='./IP2LOCATION-LITE-DB1.CSV'
 
     n_reduce_tasks = 1
+
+    def extra_files(self):
+        return ['/hdfs/user/sandello/dicts/IP2LOCATION-LITE-DB5.CSV']
 
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(
@@ -176,7 +185,7 @@ class UsersByCountry(Metric):
         return {
             'lo':  int(record[0].replace('"', '')),
             'hi':  int(record[1].replace('"', '')),
-            'country': record[2].replace('"', '')
+            'country': record[3].replace('"', '').replace('\n', '')
         }
 
     def init_mapper(self, location_file_ob=None):
@@ -192,7 +201,7 @@ class UsersByCountry(Metric):
 
 
     def find_country(self, ip):
-        code = UsersByCountry.ip2code(ip)
+        code = UsersByCountryMetric.ip2code(ip)
         code_idx = bisect.bisect(self.locations_begs, code) - 1
         assert code_idx >= 0
 
@@ -209,3 +218,22 @@ class UsersByCountry(Metric):
         yield key, sum(values)
 
     combiner = reducer
+
+
+class NewUsersMetric(ExternalMetricWithLag):
+
+    n_reduce_tasks = 1
+    lag=14
+
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/new_users_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
+
+    def run(self):
+        from .streaming.new_users import run
+
+        run.run_map_reduce(
+                [x.path for x in self.input()], self.output().path, self.date, self.task_id,
+                self.n_reduce_tasks, '/home/agolomedov/hw1/mr-wtf/metrics/streaming/new_users')

@@ -21,15 +21,15 @@ class TestMetrics(unittest.TestCase):
 
     def test_should_parse_country_dictionary(self):
         row = '"34643712","34644479","RU","Russian Federation"'
-        rec = UsersByCountry.parse_location_row(row)
+        rec = UsersByCountryMetric.parse_location_row(row)
 
         self.assertEqual(rec['lo'], 34643712)
         self.assertEqual(rec['hi'], 34644479)
-        self.assertEqual(rec['country'], 'RU')
+        self.assertEqual(rec['country'], 'Russian Federation')
 
 
     def test_should_encode_ip(self):
-        self.assertEqual(34643712, UsersByCountry.ip2code('2.16.159.0'))
+        self.assertEqual(34643712, UsersByCountryMetric.ip2code('2.16.159.0'))
 
     def test_it_should_init_mapper(self):
 
@@ -42,7 +42,7 @@ class TestMetrics(unittest.TestCase):
                 '"34646272","34646527","NL","Netherlands"\n'
         )
 
-        job = UsersByCountry(date=None)
+        job = UsersByCountryMetric(date=None)
         job.init_mapper(country_dict_stub)
 
         self.assertEqual(sorted([34643712, 34644480, 34644992, 34645504, 34646016, 34646272]), job.locations_begs)
@@ -58,11 +58,11 @@ class TestMetrics(unittest.TestCase):
                 '"34646272","34646527","NL","Netherlands"\n'
         )
 
-        job = UsersByCountry(date=None)
+        job = UsersByCountryMetric(date=None)
         job.init_mapper(country_dict_stub)
 
-        self.assertEqual('DE', job.find_country('2.16.162.42'))
-        self.assertEqual('RU', job.find_country('2.16.168.42'))
+        self.assertEqual('Germany', job.find_country('2.16.162.42'))
+        self.assertEqual('Russian Federation', job.find_country('2.16.168.42'))
 
 if __name__ == '__main__':
     unittest.main()
