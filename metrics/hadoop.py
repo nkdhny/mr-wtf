@@ -5,6 +5,7 @@ import luigi.contrib.hadoop
 import re
 import datetime
 import random
+import bisect
 
 
 def parse_line(line):
@@ -14,9 +15,7 @@ def parse_line(line):
 
     return {
         'code': int(record[3]),
-        'ip': record[0],
-        'epoch': random.randint(0, 10),
-        'file': 'some_file'
+        'ip': record[0]
     }
 
 class LogFile(luigi.ExternalTask):    
@@ -24,6 +23,13 @@ class LogFile(luigi.ExternalTask):
 
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(self.date.strftime('/user/sandello/logs/access.log.%Y-%m-%d'))
+
+class DictFile(luigi.ExternalTask):
+    hdfs_path = luigi.Parameter()
+
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(self.hdfs_path)
+
 
 class Metric(luigi.contrib.hadoop.JobTask):
     date = luigi.DateParameter(default=datetime.date.today() - datetime.timedelta(days=1))
@@ -149,3 +155,57 @@ class SessionLengthTask(DerivativeMetric):
             values_sum += w * v
 
         yield key, values_sum / float(weight)
+
+
+class UsersByCountry(Metric):
+
+    locations_file='./IP2LOCATION-LITE-DB1.CSV'
+
+    n_reduce_tasks = 1
+
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/users_by_country_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
+
+    @staticmethod
+    def parse_location_row(location_row):
+        record = location_row.split(',')
+
+        return {
+            'lo':  int(record[0].replace('"', '')),
+            'hi':  int(record[1].replace('"', '')),
+            'country': record[2].replace('"', '')
+        }
+
+    def init_mapper(self, location_file_ob=None):
+        location_file_ob = location_file_ob or file(self.locations_file)
+        self.locations = sorted(
+                [self.parse_location_row(x) for x in location_file_ob.readlines()], key=lambda r: r['lo'])
+        self.locations_begs = [x['lo'] for x in self.locations]
+
+    @staticmethod
+    def ip2code(ip):
+        bytes = [int(x) for x in ip.split('.')]
+        return bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3] << 0
+
+
+    def find_country(self, ip):
+        code = UsersByCountry.ip2code(ip)
+        code_idx = bisect.bisect(self.locations_begs, code) - 1
+        assert code_idx >= 0
+
+        return self.locations[code_idx]['country']
+
+    def mapper(self, line):
+        record = parse_line(line)
+
+        if record['code'] == 200:
+            country = self.find_country(record['ip'])
+            yield country, 1
+
+    def reducer(self, key, values):
+        yield key, sum(values)
+
+    combiner = reducer
