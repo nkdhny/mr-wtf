@@ -39,3 +39,4 @@ if __name__ == '__main__':
     reducer = NewUsersReducer()
     for line in sys.stdin:
         reducer(line)
+    reducer.trace_new_users()

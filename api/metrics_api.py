@@ -1,7 +1,8 @@
 from flask import jsonify
 from api import app
 from flask import request
-from metrics.local import LocalTotalHitsMetric, LocalTotalUsersMetric, LocalUserSessionLength
+from metrics.local import LocalTotalHitsMetric, LocalTotalUsersMetric, LocalUserSessionLength, \
+    LocalUsersByCountry, LocalNewUsers
 import datetime
 import logging
 from flask import abort
@@ -17,10 +18,24 @@ def read_simple_metric(file_obj):
         except ValueError:
             return float(line.split()[1])
 
+def read_dict_metric(file_obj):
+    res = {}
+    with file_obj.open() as o:
+        for line in o.readlines():
+            parts = line.split('\t')
+            k = parts[0]
+            v = int(parts[1][:-1])
+            res[k] = v
+
+    return res
+
 def metrics_for_day(day):
     total_hits = LocalTotalHitsMetric(date=day)
     total_users = LocalTotalUsersMetric(date=day)
     session_length = LocalUserSessionLength(date=day)
+    users_by_country = LocalUsersByCountry(date=day)
+    new_users = LocalNewUsers(date=day)
+
 
     if any([not x.complete() for x in [total_hits]]):
         raise MetricNotReady
@@ -29,11 +44,9 @@ def metrics_for_day(day):
         'total_hits': read_simple_metric(total_hits.output()),
         'total_users': read_simple_metric(total_users.output()),
         'average_session_length': read_simple_metric(session_length.output()),
-        "new_users": 10,
+        "new_users": read_simple_metric(new_users.output()),
         "lost_users": 10,
-        "users_by_country": {
-            "Russian Federation": 100
-        },
+        "users_by_country": read_dict_metric(users_by_country.output()),
         "facebook_signup_conversion_3": 0.05
     }
 
