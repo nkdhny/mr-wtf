@@ -165,12 +165,12 @@ class SessionLengthTask(DerivativeMetric):
 
 class UsersByCountryMetric(Metric):
 
-    locations_file='./IP2LOCATION-LITE-DB1.CSV'
+    locations_file='loc-dict.csv'
 
     n_reduce_tasks = 1
 
     def extra_files(self):
-        return ['/hdfs/user/sandello/dicts/IP2LOCATION-LITE-DB5.CSV']
+        return [('/hdfs/user/sandello/dicts/IP2LOCATION-LITE-DB5.CSV', 'loc-dict.csv')]
 
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(
