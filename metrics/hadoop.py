@@ -289,6 +289,12 @@ class FacebookConversionsRatio(DerivativeMetric):
     def requires(self):
         return FacebookActions(date=self.date)
 
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/facebook_conversions_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
+
     def mapper(self, line):
         _, action = line.split()
 
