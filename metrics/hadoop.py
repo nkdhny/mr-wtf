@@ -208,7 +208,7 @@ class UsersByCountryMetric(DerivativeMetric):
         return {
             'lo':  int(record[0].replace('"', '')),
             'hi':  int(record[1].replace('"', '')),
-            'country': record[3].replace('"', '').replace('\n', '')
+            'country': record[3].replace('"', '').strip()
         }
 
     def init_mapper(self, location_file_ob=None):
