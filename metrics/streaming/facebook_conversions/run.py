@@ -16,8 +16,9 @@ def build_hadoop_command(input, output, date_beg, date_end, n_reducers=1, job_na
         '-mapper', './map.py',
         '-partitioner', 'org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner',
         '-reducer', './reduce.py',
-        '-cmdenv', '{}={}, {}={}'.format(
-                FacebookConversionReducer.date_beg_env_key, date_beg.strftime('%Y-%m-%d'),
+        '-cmdenv', '{}={}'.format(
+                FacebookConversionReducer.date_beg_env_key, date_beg.strftime('%Y-%m-%d')),
+        '-cmdenv', '{}={}'.format(
                 FacebookConversionReducer.date_end_env_key, date_end.strftime('%Y-%m-%d'))
     ]
 
