@@ -15,10 +15,13 @@ def parse_line(line):
 
     return {
         'code': int(record[3]),
-        'ip': record[0]
+        'ip': record[0],
+        'referrer': record[5],
+        'req': record[2],
+        'file': (record[2]).split(' ')[1]
     }
 
-class LogFile(luigi.ExternalTask):    
+class LogFile(luigi.ExternalTask):
     date = luigi.DateParameter()
 
     def output(self):
@@ -259,3 +262,50 @@ class NewUsersMetric(ExternalMetricWithLag):
         run.run_map_reduce(
                 [x.path for x in self.input()], self.output().path, self.date, self.task_id,
                 self.n_reduce_tasks, '/home/agolomedov/hw1/mr-wtf/metrics/streaming/new_users')
+
+class FacebookActions(ExternalMetricWithLag):
+
+    lag = 16
+    n_reduce_tasks = 3
+
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/facebook_actions_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
+
+    def run(self):
+        from .streaming.facebook_conversions import run
+
+        run.run_map_reduce(
+                [x.path for x in self.input()], self.output().path, self.date - datetime.timedelta(days=2),
+                self.date, self.task_id,
+                self.n_reduce_tasks, '/home/agolomedov/hw1/mr-wtf/metrics/streaming/facebook_conversions')
+
+
+class FacebookConversionsRatio(DerivativeMetric):
+    n_reduce_tasks = 1
+
+    def requires(self):
+        return FacebookActions(date=self.date)
+
+    def mapper(self, line):
+        _, action = line.split()
+
+        yield action, 1
+
+    def combiner(self, key, vals):
+        yield key, sum(vals)
+
+    def init_reducer(self):
+        self._num_converted = 0
+        self._num_transferred = 0
+
+    def reducer(self, key, vals):
+        if key == 'converted':
+            self._num_converted += sum(vals)
+        if key == 'transferred':
+            self._num_transferred += sum(vals)
+
+    def final_reducer(self):
+        yield 'facebook_conversion_ratio', self._num_converted / float(self._num_transferred)
