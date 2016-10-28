@@ -265,7 +265,7 @@ class NewUsersMetric(ExternalMetricWithLag):
 
 class FacebookActions(ExternalMetricWithLag):
 
-    lag = 4
+    lag = 16
     n_reduce_tasks = 3
 
     def output(self):
