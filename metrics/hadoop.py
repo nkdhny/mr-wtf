@@ -162,15 +162,38 @@ class SessionLengthTask(DerivativeMetric):
 
         yield key, values_sum / float(weight)
 
+class UniqueUsersAdresses(Metric):
+    n_reduce_tasks = 3
 
-class UsersByCountryMetric(Metric):
+    def mapper(self, line):
+        record = parse_line(line)
+
+        if record['code'] == 200:
+            yield record['ip'], 'nothing'
+
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/unique_user_addresses_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
+
+    def reducer(self, key, values):
+        yield key, 'nothing'
+
+    combiner = reducer
+
+
+class UsersByCountryMetric(DerivativeMetric):
 
     locations_file='loc-dict.csv'
 
     n_reduce_tasks = 1
 
     def extra_files(self):
-        return [('/hdfs/user/sandello/dicts/IP2LOCATION-LITE-DB5.CSV', 'loc-dict.csv')]
+        return [('/hdfs/user/sandello/dicts/IP2LOCATION-LITE-DB1.CSV', 'loc-dict.csv')]
+
+    def requires(self):
+        return UniqueUsersAdresses(date=self.date)
 
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(
@@ -208,11 +231,10 @@ class UsersByCountryMetric(Metric):
         return self.locations[code_idx]['country']
 
     def mapper(self, line):
-        record = parse_line(line)
+        record = line.split('\t')
 
-        if record['code'] == 200:
-            country = self.find_country(record['ip'])
-            yield country, 1
+        country = self.find_country(record[0])
+        yield country, 1
 
     def reducer(self, key, values):
         yield key, sum(values)
