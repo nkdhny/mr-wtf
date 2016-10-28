@@ -39,6 +39,9 @@ class SessionsReducer(object):
         else:
             if self._is_same_session(record['epoch']):
                 self._session_length += 1
+            else:
+                self.flush()
+                self._session_length = 1
 
         self._prev_visit = record['epoch']
 
