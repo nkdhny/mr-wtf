@@ -99,7 +99,8 @@ class FacebookConversionReducer(object):
         date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
 
         if ip != self._prev_ip_seen:
-            self.trace()
+            #self.trace()
+            print "{}\t{}".format(self._prev_ip_seen, self._state)
             self._state = 'initial'
             self._prev_ip_seen = ip
 
