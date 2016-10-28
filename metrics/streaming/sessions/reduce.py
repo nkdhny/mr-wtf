@@ -12,7 +12,7 @@ def parse_line(line):
 
 
 class SessionsReducer(object):
-    session_ttl = 30 * 60 * 60 #seconds
+    session_ttl = 30 * 60 #seconds
 
     def __init__(self):
         self._prev_ip = None
