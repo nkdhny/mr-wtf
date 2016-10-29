@@ -2,7 +2,7 @@ from flask import jsonify
 from api import app
 from flask import request
 from metrics.local import LocalTotalHitsMetric, LocalTotalUsersMetric, LocalUserSessionLength, \
-    LocalUsersByCountry, LocalNewUsers
+    LocalUsersByCountry, LocalNewUsers, LocalFacebokokConversionRatio
 import datetime
 import logging
 from flask import abort
@@ -35,6 +35,7 @@ def metrics_for_day(day):
     session_length = LocalUserSessionLength(date=day)
     users_by_country = LocalUsersByCountry(date=day)
     new_users = LocalNewUsers(date=day)
+    facebook_conversions = LocalFacebokokConversionRatio(date=day)
 
 
     if any([not x.complete() for x in [total_hits]]):
@@ -45,9 +46,8 @@ def metrics_for_day(day):
         'total_users': read_simple_metric(total_users.output()),
         'average_session_length': read_simple_metric(session_length.output()),
         "new_users": read_simple_metric(new_users.output()),
-        "lost_users": 10,
         "users_by_country": read_dict_metric(users_by_country.output()),
-        "facebook_signup_conversion_3": 0.05
+        "facebook_signup_conversion_3": read_simple_metric(facebook_conversions.output())
     }
 
 @app.route('/api/hw1')
