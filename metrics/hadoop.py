@@ -317,3 +317,22 @@ class FacebookConversionsRatio(DerivativeMetric):
 
     def final_reducer(self):
         yield 'facebook_conversion_ratio', self._num_converted / float(self._num_transferred)
+
+
+class ProfileHits(Metric):
+
+    n_reduce_tasks=5
+
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/profile_hits_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
+
+    def run(self):
+        from .streaming.profile_hits import run
+
+        run.run_map_reduce(
+                [x.path for x in self.input()], self.output().path, self.date, self.task_id,
+                self.n_reduce_tasks, '/home/agolomedov/hw1/mr-wtf/metrics/streaming/profile_hits')
+
