@@ -94,7 +94,7 @@ def get_profile_hits():
     end_date = datetime.datetime.strptime(request.args.get("end_date"), "%Y-%m-%d").date()
     profile_id = int(request.args.get('profile_id')[2:])
 
-    all_hits = _hbase_connection().table(_compose_table_name("profile_hits"))
+    all_hits = _hbase_connection().table(_compose_table_name("profilehit"))
 
     def compose_key(profile, day):
         return b"{}#{}".format(profile, day.strftime("%Y-%m-%d"))
