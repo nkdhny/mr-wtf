@@ -8,7 +8,14 @@ import sys
 def parse_line(line):
     pat = '([\d\.:]+) - - \[(\S+) [^"]+\] "(\w+) ([^"]+) (HTTP/[\d\.]+)" (\d+) \d+ "([^"]+)" "([^"]+)"'
 
-    record = re.match(pat, line).groups()
+    match = re.match(pat, line)
+
+    if match is None:
+        return {
+            'code': None
+        }
+
+    record = match.groups()
 
     return {
         'code': int(record[5]),

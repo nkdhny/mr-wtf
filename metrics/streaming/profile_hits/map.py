@@ -25,7 +25,15 @@ def parse_profile(raw_req):
 def parse_line(line):
     pat = '([(\d\.)]+) - - \[(.*?)\] "(.*?)" (\d+) (\d+) "(.*?)" "(.*?)"'
 
-    record = re.match(pat, line).groups()
+    match = re.match(pat, line)
+
+    if match is None:
+        return {
+            'code': None,
+            'profile': None
+        }
+
+    record = match.groups()
 
     req_time = datetime.datetime.strptime(record[1][:-6], "%d/%b/%Y:%H:%M:%S")
 
