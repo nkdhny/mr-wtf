@@ -17,7 +17,7 @@ def parse_profile(raw_req):
     else:
         gr = m.groups()
 
-        raw_req['profile'] = gr[0]
+        raw_req['profile'] = int(gr[0])
         raw_req['like'] = (gr[1] is not None)
 
     return raw_req
