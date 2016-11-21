@@ -333,6 +333,6 @@ class ProfileHits(Metric):
         from .streaming.profile_hits import run
 
         run.run_map_reduce(
-                self.input().path, self.output().path, self.date, self.task_id,
+                self.input().path, self.output().path, self.task_id,
                 self.n_reduce_tasks, '/home/agolomedov/hw1/mr-wtf/metrics/streaming/profile_hits')
 
