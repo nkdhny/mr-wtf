@@ -321,7 +321,7 @@ class FacebookConversionsRatio(DerivativeMetric):
 
 class ProfileHits(Metric):
 
-    n_reduce_tasks=5
+    n_reduce_tasks = 5
 
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(
@@ -333,6 +333,6 @@ class ProfileHits(Metric):
         from .streaming.profile_hits import run
 
         run.run_map_reduce(
-                [x.path for x in self.input()], self.output().path, self.date, self.task_id,
+                self.input().path, self.output().path, self.date, self.task_id,
                 self.n_reduce_tasks, '/home/agolomedov/hw1/mr-wtf/metrics/streaming/profile_hits')
 
