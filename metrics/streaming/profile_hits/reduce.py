@@ -61,7 +61,7 @@ class ProfileHitsReducer(object):
     def __call__(self, line):
         profile_id, _, date, hour = [x.strip() for x in line.split()]
 
-        if self._should_trace(profile_id, date, hour):
+        if self._should_trace(profile_id, date):
             self.trace_profile()
 
         if self._should_accum(hour):
