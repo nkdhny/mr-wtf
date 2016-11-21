@@ -45,7 +45,7 @@ def metrics_for_day(day):
         'total_users': read_simple_metric(total_users.output()) if total_users.complete() else 0,
         'average_session_length': read_simple_metric(session_length.output()) if session_length.complete() else 0,
         "new_users": read_simple_metric(new_users.output()) if new_users.complete() else 0,
-        "users_by_country": read_dict_metric(users_by_country.output()) if users_by_country else {},
+        "users_by_country": read_dict_metric(users_by_country.output()) if users_by_country.complete() else {},
         "facebook_signup_conversion_3": read_simple_metric(facebook_conversions.output()) if facebook_conversions.complete() else 0
     }
 
