@@ -62,6 +62,7 @@ def get_metrics():
 
     try:
         while date <= end_date:
+            logging.info("Reading metrics for {}".format(date))
             metrics[str(date)] = metrics_for_day(date)
             date = date + datetime.timedelta(days=1)
     except MetricNotReady:
