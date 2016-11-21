@@ -49,7 +49,7 @@ def is_completed_profile_request(req):
 def mapred_map(line):
     record = parse_line(line)
     if is_completed_profile_request(record):
-        print "{}\t{}\t{}\t".format(record['profile'], record['epoch'], record['date'], record['hour'])
+        print "{}\t{}\t{}\t{}".format(record['profile'], record['epoch'], record['date'], record['hour'])
 
 if __name__ == '__main__':
     for line in sys.stdin:
