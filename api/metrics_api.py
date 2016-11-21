@@ -106,5 +106,5 @@ def get_profile_hits():
         return key.split('#')[1]
 
     return jsonify(dict([
-        (parse_key(k), [d.get('h:{}'.format(x), 0) for x in range(25)]) for k, d in mathched_hits
+        (parse_key(k), [int(d.get('h:{}'.format(x), 0)) for x in range(25)]) for k, d in mathched_hits
     ]))
