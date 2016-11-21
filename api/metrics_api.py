@@ -97,7 +97,7 @@ def get_profile_hits():
     all_hits = _hbase_connection().table(_compose_table_name("profile_hits"))
 
     def compose_key(profile, day):
-        return b"{}#{}".format(profile, day.strptime("%Y-%m-%d"))
+        return b"{}#{}".format(profile, day.strftime("%Y-%m-%d"))
 
     mathched_hits = all_hits.scan(
             row_start=compose_key(profile_id, start_date), row_stop=compose_key(profile_id, end_date))
