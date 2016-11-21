@@ -316,7 +316,10 @@ class FacebookConversionsRatio(DerivativeMetric):
         return []
 
     def final_reducer(self):
-        yield 'facebook_conversion_ratio', self._num_converted / float(self._num_transferred)
+        if (self._num_transferred > 0):
+            yield 'facebook_conversion_ratio', self._num_converted / float(self._num_transferred)
+        else:
+            yield 'facebook_conversion_ratio', 0
 
 
 class ProfileHits(Metric):
