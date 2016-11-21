@@ -38,8 +38,8 @@ def metrics_for_day(day):
     facebook_conversions = LocalFacebokokConversionRatio(date=day)
 
 
-    if any([not x.complete() for x in [total_hits]]):
-        raise MetricNotReady
+    if any([not x.complete() for x in [total_hits, total_users, session_length, users_by_country, new_users, facebook_conversions]]):
+        return {}
 
     return {
         'total_hits': read_simple_metric(total_hits.output()),
