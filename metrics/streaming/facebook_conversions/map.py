@@ -16,19 +16,24 @@ def parse_line(line):
 
     record = match.groups()
 
-    return {
-        'code': int(record[3]),
-        'ip': record[0],
-        'referrer': record[5],
-        'req': record[2],
-        'file': (record[2]).split(' ')[1],
-        #-6 due to dropping tz
-        'epoch': (
-            datetime.datetime.strptime(
-                    record[1][:-6], "%d/%b/%Y:%H:%M:%S") -
-            datetime.datetime(year=1970, month=1, day=1)).total_seconds(),
-        'date': datetime.datetime.strptime(record[1][:-6], "%d/%b/%Y:%H:%M:%S").date().strftime('%Y-%m-%d')
-    }
+    try:
+        return {
+            'code': int(record[3]),
+            'ip': record[0],
+            'referrer': record[5],
+            'req': record[2],
+            'file': (record[2]).split(' ')[1],
+            #-6 due to dropping tz
+            'epoch': (
+                datetime.datetime.strptime(
+                        record[1][:-6], "%d/%b/%Y:%H:%M:%S") -
+                datetime.datetime(year=1970, month=1, day=1)).total_seconds(),
+            'date': datetime.datetime.strptime(record[1][:-6], "%d/%b/%Y:%H:%M:%S").date().strftime('%Y-%m-%d')
+        }
+    except:
+        return {
+            'code': None
+        }
 
 
 def mapred_map(line):
