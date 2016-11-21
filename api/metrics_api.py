@@ -107,3 +107,25 @@ def get_profile_hits():
     return jsonify(dict([
         (parse_key(k), [int(d.get('h:{}'.format(x), 0)) for x in range(25)]) for k, d in mathched_hits
     ]))
+
+@app.route('/api/hw2/profile_users')
+def get_profile_hits():
+
+    start_date = datetime.datetime.strptime(request.args.get("start_date"), "%Y-%m-%d").date()
+    end_date = datetime.datetime.strptime(request.args.get("end_date"), "%Y-%m-%d").date()
+    profile_id = int(request.args.get('profile_id')[2:])
+
+    all_hits = _hbase_connection().table(_compose_table_name("profileuser"))
+
+    def compose_key(profile, day):
+        return b"{}#{}".format(profile, day.strftime("%Y-%m-%d"))
+
+    mathched_hits = all_hits.scan(
+            row_start=compose_key(profile_id, start_date), row_stop=compose_key(profile_id, end_date))
+
+    def parse_key(key):
+        return key.split('#')[1]
+
+    return jsonify(dict([
+        (parse_key(k), [int(d.get('h:{}'.format(x), 0)) for x in range(25)]) for k, d in mathched_hits
+    ]))
