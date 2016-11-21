@@ -20,6 +20,8 @@ def read_simple_metric(file_obj):
             return int(line.split()[1])
         except ValueError:
             return float(line.split()[1])
+        except:
+            return 0
 
 def read_dict_metric(file_obj):
     res = {}
