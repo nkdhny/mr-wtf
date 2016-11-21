@@ -39,7 +39,7 @@ class ProfileHitsReducer(object):
             return b"{}#{}".format(self._prev_seen_profile, self._prev_seen_day)
 
         def compose_value():
-            return dict([(b"h:{}".format(k), 'b{}'.format(v)) for k, v in self._profile_views.iteritems()])
+            return dict([(b"h:{}".format(k), b'{}'.format(v)) for k, v in self._profile_views.iteritems()])
 
         self._table.put(compose_key(), compose_value())
         for h, c in self._profile_views.iteritems():
