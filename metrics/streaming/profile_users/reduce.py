@@ -56,8 +56,7 @@ class ProfileHitsReducer(object):
 
 
     def _should_trace(self, profile, ip):
-        return (profile != self._prev_seen_profile and self._prev_seen_profile is not None) or \
-               (ip != self._prev_seen_ip and self._prev_seen_ip is not None)
+        return (profile != self._prev_seen_profile and self._prev_seen_profile is not None)
 
     def __call__(self, line):
         profile_id, _, ip, date, hour = [x.strip() for x in line.split()]
