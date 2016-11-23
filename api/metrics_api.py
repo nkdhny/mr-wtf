@@ -177,7 +177,7 @@ def profile_last_three_liked_users():
     def parse_key(key):
         return key.split('+')[1]
 
-    profile_likes = [(parse_key(k), int(d.get('t:ts'))) for k, d in mathched_likes]
+    profile_likes = [(parse_key(k), float(d.get('t:ts'))) for k, d in mathched_likes]
 
     profile_likes = sorted(
             profile_likes, cmp=lambda x, y: -cmp(x[0], y[0]))
