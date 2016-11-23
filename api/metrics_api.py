@@ -134,7 +134,7 @@ def get_profile_users():
 @app.route('/api/hw2/user_most_visited_profiles')
 def user_most_visited_profiles():
 
-    date = datetime.datetime.strptime(request.args.get("start_date"), "%Y-%m-%d").date()
+    date = datetime.datetime.strptime(request.args.get("date"), "%Y-%m-%d").date()
     ip = request.args.get("user_ip")
 
     all_views = _hbase_connection().table(_compose_table_name("profileview"))
@@ -160,7 +160,7 @@ def user_most_visited_profiles():
 @app.route('/api/hw2/profile_last_three_liked_users')
 def profile_last_three_liked_users():
 
-    date = datetime.datetime.strptime(request.args.get("start_date"), "%Y-%m-%d").date()
+    date = datetime.datetime.strptime(request.args.get("date"), "%Y-%m-%d").date()
     start_date = date - datetime.timedelta(days=5)
     profile_id = int(request.args.get('profile_id')[2:])
 
