@@ -109,7 +109,7 @@ def get_profile_hits():
     ]))
 
 @app.route('/api/hw2/profile_users')
-def get_profile_hits():
+def get_profile_users():
 
     start_date = datetime.datetime.strptime(request.args.get("start_date"), "%Y-%m-%d").date()
     end_date = datetime.datetime.strptime(request.args.get("end_date"), "%Y-%m-%d").date()
@@ -132,7 +132,7 @@ def get_profile_hits():
 
 
 @app.route('/api/hw2/user_most_visited_profiles')
-def get_profile_hits():
+def user_most_visited_profiles():
 
     date = datetime.datetime.strptime(request.args.get("start_date"), "%Y-%m-%d").date()
     ip = request.args.get("user_ip")
@@ -158,7 +158,7 @@ def get_profile_hits():
     return jsonify(profile_views)
 
 @app.route('/api/hw2/profile_last_three_liked_users')
-def get_profile_hits():
+def profile_last_three_liked_users():
 
     date = datetime.datetime.strptime(request.args.get("start_date"), "%Y-%m-%d").date()
     start_date = date - datetime.timedelta(days=5)
