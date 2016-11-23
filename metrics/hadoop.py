@@ -363,3 +363,21 @@ class ProfileUsers(Metric):
         run.run_map_reduce(
                 self.input().path, self.output().path, self.task_id,
                 self.n_reduce_tasks, '/home/agolomedov/hw1/mr-wtf/metrics/streaming/profile_users')
+
+
+class ProfileView(Metric):
+
+    n_reduce_tasks = 5
+
+    def output(self):
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/profile_views_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
+
+    def run(self):
+        from .streaming.profile_views import run
+
+        run.run_map_reduce(
+                self.input().path, self.output().path, self.date, self.task_id,
+                self.n_reduce_tasks, '/home/agolomedov/hw1/mr-wtf/metrics/streaming/profile_views')

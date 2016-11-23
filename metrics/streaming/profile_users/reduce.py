@@ -48,24 +48,24 @@ class ProfileHitsReducer(object):
 
         self._profile_views = defaultdict(lambda: 0)
 
-    def _should_accum(self, hour, ip):
-        return self._prev_seen_profile is not None and (hour != self._prev_seen_hour or ip != self._prev_seen_ip)
+    def _should_accum(self, profile, hour, ip):
+        return hour != self._prev_seen_hour or ip != self._prev_seen_ip or profile != self._prev_seen_profile
 
     def _accum(self, hour):
         self._profile_views[hour] += 1
 
 
-    def _should_trace(self, profile, day):
+    def _should_trace(self, profile, ip):
         return (profile != self._prev_seen_profile and self._prev_seen_profile is not None) or \
-               (profile == self._prev_seen_profile and day != self._prev_seen_day)
+               (ip != self._prev_seen_ip and self._prev_seen_ip is not None)
 
     def __call__(self, line):
         profile_id, _, ip, date, hour = [x.strip() for x in line.split()]
 
-        if self._should_trace(profile_id, date):
+        if self._should_trace(profile_id, ip):
             self.trace_profile()
 
-        if self._should_accum(hour, ip):
+        if self._should_accum(profile_id, hour, ip):
             self._accum(hour)
 
         self._prev_seen_profile = profile_id

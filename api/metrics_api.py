@@ -129,3 +129,30 @@ def get_profile_hits():
     return jsonify(dict([
         (parse_key(k), [int(d.get('h:{}'.format(x), 0)) for x in range(25)]) for k, d in mathched_hits
     ]))
+
+
+@app.route('/api/hw2/user_most_visited_profiles')
+def get_profile_hits():
+
+    date = datetime.datetime.strptime(request.args.get("start_date"), "%Y-%m-%d").date()
+    ip = request.args.get("user_ip")
+
+    all_views = _hbase_connection().table(_compose_table_name("profileview"))
+
+    def compose_first_key(ip):
+        return b"{}#{}+{}".format(date, ip, "00000")
+    def compose_last_key(ip):
+        return b"{}#{}+{}".format(date, ip, "99999")
+
+    mathched_views = all_views.scan(
+            row_start=compose_first_key(ip), row_stop=compose_last_key(ip))
+
+    def parse_key(key):
+        return key.split('+')[1]
+
+    profile_views = [(parse_key(k), int(d.get('c:cnt'))) for k, d in mathched_views]
+
+    profile_views = sorted(
+            profile_views, cmp=lambda x, y: cmp(x[0], y[0]) if cmp(x[1], y[1]) == 0 else cmp(x[1], y[1]))
+
+    return jsonify(profile_views)

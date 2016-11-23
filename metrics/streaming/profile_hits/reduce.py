@@ -47,8 +47,7 @@ class ProfileHitsReducer(object):
 
         self._profile_views = defaultdict(lambda: 0)
 
-    def _should_accum(self, hour):
-        return self._prev_seen_profile is not None and hour != self._prev_seen_hour
+
 
     def _accum(self, hour):
         self._profile_views[hour] += 1
@@ -64,8 +63,7 @@ class ProfileHitsReducer(object):
         if self._should_trace(profile_id, date):
             self.trace_profile()
 
-        if self._should_accum(hour):
-            self._accum(hour)
+        self._accum(hour)
 
         self._prev_seen_profile = profile_id
         self._prev_seen_day = date
