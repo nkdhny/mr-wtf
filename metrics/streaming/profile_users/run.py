@@ -4,7 +4,7 @@ def build_hadoop_command(input, output, n_reducers=5, job_name=None):
     return [
         'hadoop', 'jar', '/opt/hadoop/hadoop-streaming.jar',
         '-D mapred.output.key.comparator.class=org.apache.hadoop.mapred.lib.KeyFieldBasedComparator',
-        '-D mapred.text.key.comparator.options=\'-k1,1 -k2,2n -k3,3\'',
+        '-D mapred.text.key.comparator.options=\"-k1,1 -k2,2n -k3,3\"',
         '-D stream.num.map.output.key.fields=3',
         '-D mapred.text.key.partitioner.options=-k1,1',
         '-D mapreduce.job.reduces={}'.format(n_reducers),
