@@ -155,7 +155,7 @@ def user_most_visited_profiles():
     profile_views = sorted(
             profile_views, cmp=lambda x, y: cmp(x[0], y[0]) if cmp(x[1], y[1]) == 0 else cmp(x[1], y[1]))
 
-    return jsonify([x[0] for x in profile_views])
+    return jsonify([int(x[0]) for x in profile_views])
 
 @app.route('/api/hw2/profile_last_three_liked_users')
 def profile_last_three_liked_users():
