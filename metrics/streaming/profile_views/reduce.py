@@ -41,7 +41,7 @@ class ProfileViewsReducer(object):
             return b"{}#{}+{}".format(self.date, self._prev_seen_ip, self._prev_seen_profile)
 
         def compose_value():
-            return dict([(b"c:cnt", self._views_count)])
+            return dict([(b"c:cnt", b'{}'.format(self._views_count))])
 
         self._table.put(compose_key(), compose_value())
 
