@@ -164,7 +164,7 @@ def profile_last_three_liked_users():
     start_date = date - datetime.timedelta(days=5)
     profile_id = int(request.args.get('profile_id')[2:])
 
-    all_likes = _hbase_connection().table(_compose_table_name("profileview"))
+    all_likes = _hbase_connection().table(_compose_table_name("profilelike"))
 
     def compose_first_key():
         return b"{}#{}+{}".format(profile_id, start_date, "")
