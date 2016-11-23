@@ -1,1 +1,1 @@
-0 */6 * * * cd /home/agolomedov/hw1/mr-wtf && PYTHONPATH=. python -m luigi --module metrics.local AllMetrics --local-scheduler
+0 */6 * * * cd /home/agolomedov/hw1/mr-wtf && PYTHONPATH=. python -m luigi --module metrics.local AllMetrics --local-scheduler --workers 5

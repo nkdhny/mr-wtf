@@ -1,7 +1,7 @@
 import luigi
 import datetime
 from .hadoop import TotalHitsTask, UniqueUsersTask, SessionLengthTask, UsersByCountryMetric, NewUsersMetric, \
-    FacebookConversionsRatio
+    FacebookConversionsRatio, ProfileHits, ProfileUsers, ProfileView, ProfileLikeMetric
 from config import AppConfig
 import shutil
 import luigi.task
@@ -61,4 +61,8 @@ class AllMetrics(luigi.WrapperTask):
 
     def requires(self):
         inst = lambda x: x(date=self.date)
-        return [inst(x) for x in LocalMetric.__subclasses__()]
+        hw_1_metrics = [inst(x) for x in LocalMetric.__subclasses__()]
+        hw_2_metrics = [ProfileHits(self.date), ProfileUsers(self.date), ProfileView(self.date),
+                        ProfileLikeMetric(self.date)]
+
+        return hw_1_metrics + hw_2_metrics
