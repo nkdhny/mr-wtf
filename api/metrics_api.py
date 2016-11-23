@@ -156,3 +156,30 @@ def get_profile_hits():
             profile_views, cmp=lambda x, y: cmp(x[0], y[0]) if cmp(x[1], y[1]) == 0 else cmp(x[1], y[1]))
 
     return jsonify(profile_views)
+
+@app.route('/api/hw2/profile_last_three_liked_users')
+def get_profile_hits():
+
+    date = datetime.datetime.strptime(request.args.get("start_date"), "%Y-%m-%d").date()
+    start_date = date - datetime.timedelta(days=5)
+    profile_id = int(request.args.get('profile_id')[2:])
+
+    all_likes = _hbase_connection().table(_compose_table_name("profileview"))
+
+    def compose_first_key():
+        return b"{}#{}+{}".format(profile_id, start_date, "")
+    def compose_last_key():
+        return b"{}#{}+{}".format(profile_id, date, "999.999.999.999")
+
+    mathched_likes = all_likes.scan(
+            row_start=compose_first_key(), row_stop=compose_last_key())
+
+    def parse_key(key):
+        return key.split('+')[1]
+
+    profile_likes = [(parse_key(k), int(d.get('t:ts'))) for k, d in mathched_likes]
+
+    profile_likes = sorted(
+            profile_likes, cmp=lambda x, y: -cmp(x[0], y[0]))
+
+    return jsonify([x[0] for x in profile_likes[:3]])

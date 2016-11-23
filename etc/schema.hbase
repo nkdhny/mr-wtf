@@ -1,4 +1,6 @@
 create 'bigdatashad_agolomedov_profilehit','h'
 create 'bigdatashad_agolomedov_profileuser','h'
-#key is ip+profile
+#key is date#ip+profile
 create 'bigdatashad_agolomedov_profileview','c'
+#key is profile#date+ip
+create 'bigdatashad_agolomedov_profilelike','t'
