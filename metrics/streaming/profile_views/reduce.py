@@ -38,7 +38,7 @@ class ProfileViewsReducer(object):
     def trace_profileview(self):
 
         def compose_key():
-            return b"{}#{}+{}".format(self.date, self._prev_seen_ip, self._prev_seen_profile)
+            return b"{}#{}+{}".format(self._prev_seen_ip, self.date, self._prev_seen_profile)
 
         def compose_value():
             return dict([(b"c:cnt", b'{}'.format(self._views_count))])

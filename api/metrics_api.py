@@ -99,7 +99,8 @@ def get_profile_hits():
         return b"{}#{}".format(profile, day.strftime("%Y-%m-%d"))
 
     mathched_hits = all_hits.scan(
-            row_start=compose_key(profile_id, start_date), row_stop=compose_key(profile_id, end_date))
+            row_start=compose_key(profile_id, start_date),
+            row_stop=compose_key(profile_id, end_date + datetime.timedelta(days=1)))
 
     def parse_key(key):
         return key.split('#')[1]
@@ -121,7 +122,8 @@ def get_profile_users():
         return b"{}#{}".format(profile, day.strftime("%Y-%m-%d"))
 
     mathched_hits = all_hits.scan(
-            row_start=compose_key(profile_id, start_date), row_stop=compose_key(profile_id, end_date))
+            row_start=compose_key(profile_id, start_date),
+            row_stop=compose_key(profile_id, end_date + datetime.timedelta(days=1)))
 
     def parse_key(key):
         return key.split('#')[1]
@@ -140,9 +142,9 @@ def user_most_visited_profiles():
     all_views = _hbase_connection().table(_compose_table_name("profileview"))
 
     def compose_first_key(ip):
-        return b"{}#{}+{}".format(date, ip, "00000")
+        return b"{}#{}+{}".format(ip, date, "00000")
     def compose_last_key(ip):
-        return b"{}#{}+{}".format(date, ip, "99999")
+        return b"{}#{}+{}".format(ip, date, "99999")
 
     mathched_views = all_views.scan(
             row_start=compose_first_key(ip), row_stop=compose_last_key(ip))
