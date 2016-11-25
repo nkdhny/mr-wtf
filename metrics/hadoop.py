@@ -299,7 +299,7 @@ class NewUsersMetric(ExternalMetricWithLag):
 class FacebookActions(ExternalMetricWithLag):
 
     lag = 16
-    n_reduce_tasks = 3
+    n_reduce_tasks = 15
 
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(
@@ -375,7 +375,7 @@ class ProfileHits(Metric):
 
 class ProfileUsers(Metric):
 
-    n_reduce_tasks = 5
+    n_reduce_tasks = 15
 
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(
@@ -393,7 +393,7 @@ class ProfileUsers(Metric):
 
 class ProfileView(Metric):
 
-    n_reduce_tasks = 5
+    n_reduce_tasks = 15
 
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(
