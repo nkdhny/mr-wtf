@@ -1,7 +1,7 @@
 import luigi
 import datetime
 from .hadoop import TotalHitsTask, UniqueUsersTask, SessionLengthTask, UsersByCountryMetric, NewUsersMetric, \
-    FacebookConversionsRatio, ProfileHits, ProfileUsers, ProfileView, ProfileLikeMetric
+    FacebookConversionsRatio, ProfileHits, ProfileUsers, ProfileView, ProfileLikeMetric, LikedProfiles
 from config import AppConfig
 import shutil
 import luigi.task
@@ -54,6 +54,10 @@ class LocalNewUsers(LocalMetric):
 class LocalFacebokokConversionRatio(LocalMetric):
     def _depends_on(self):
         return FacebookConversionsRatio(date=self.date)
+
+class LocalLikes(LocalMetric):
+    def _depends_on(self):
+        return LikedProfiles(date=self.date)
 
 
 class AllMetrics(luigi.WrapperTask):

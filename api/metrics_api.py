@@ -4,7 +4,7 @@ from flask import jsonify
 from api import app
 from flask import request
 from metrics.local import LocalTotalHitsMetric, LocalTotalUsersMetric, LocalUserSessionLength, \
-    LocalUsersByCountry, LocalNewUsers, LocalFacebokokConversionRatio
+    LocalUsersByCountry, LocalNewUsers, LocalFacebokokConversionRatio, LocalLikes
 import datetime
 import logging
 from flask import abort
@@ -22,6 +22,17 @@ def read_simple_metric(file_obj):
             return float(line.split()[1])
         except:
             return 0
+
+def read_result(file_obj):
+    with file_obj.open() as o:
+        line = o.readline()
+        try:
+            return int(line.strip())
+        except ValueError:
+            return float(line.strip())
+        except:
+            return 0
+
 
 def read_dict_metric(file_obj):
     res = {}
@@ -41,6 +52,7 @@ def metrics_for_day(day):
     users_by_country = LocalUsersByCountry(date=day)
     new_users = LocalNewUsers(date=day)
     facebook_conversions = LocalFacebokokConversionRatio(date=day)
+    profile_liked = LocalLikes(date=day)
 
     return {
         'total_hits': read_simple_metric(total_hits.output()) if total_hits.complete() else 0,
@@ -48,7 +60,8 @@ def metrics_for_day(day):
         'average_session_length': read_simple_metric(session_length.output()) if session_length.complete() else 0,
         "new_users": read_simple_metric(new_users.output()) if new_users.complete() else 0,
         "users_by_country": read_dict_metric(users_by_country.output()) if users_by_country.complete() else {},
-        "facebook_signup_conversion_3": read_simple_metric(facebook_conversions.output()) if facebook_conversions.complete() else 0
+        "facebook_signup_conversion_3": read_simple_metric(facebook_conversions.output()) if facebook_conversions.complete() else 0,
+        "profile_liked_three_days": read_result(profile_liked.output()) if profile_liked.complete() else 0
     }
 
 @app.route('/api/hw1')
