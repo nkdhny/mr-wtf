@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
     likes = sum([_count_likes_in_rdd(x) for x in files])
 
-    sc.parallelize([likes]).saveAsTextFile(sys.argv[0])
+    sc.parallelize([likes], numSlices=1).saveAsTextFile(sys.argv[0])
 
     sc.stop()
 
