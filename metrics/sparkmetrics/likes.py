@@ -62,7 +62,7 @@ def _count_likes_in_rdd(rdd):
                 .count()
 
 def count_likes(file, *other_files):
-    files = [file] + other_files
+    files = [file] + list(other_files)
 
     conf = SparkConf() \
         .setAppName("NkdhnyProfileLikes3Days") \
