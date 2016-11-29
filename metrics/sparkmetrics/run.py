@@ -1,5 +1,4 @@
 from subprocess import Popen
-from .reduce import FacebookConversionReducer
 
 def build_spark_command(output, input):
     return [
