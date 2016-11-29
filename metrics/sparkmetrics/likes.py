@@ -61,8 +61,9 @@ def _count_likes_in_rdd(rdd):
                 .distinct()\
                 .count()
 
-def count_likes(file, *other_files):
-    files = [file] + list(other_files)
+
+if __name__ == '__main__':
+    files = [sys.argv[2], sys.argv[3], sys.argv[4]]
 
     conf = SparkConf() \
         .setAppName("NkdhnyProfileLikes3Days") \
@@ -73,12 +74,7 @@ def count_likes(file, *other_files):
 
     likes = sum([_count_likes_in_rdd(x) for x in files])
 
+    sc.parallelize([likes]).saveAsTextFile(sys.argv[0])
+
     sc.stop()
-    return likes
-
-if __name__ == '__main__':
-    likes = count_likes(sys.argv[2], sys.argv[3], sys.argv[4])
-
-    with file(sys.argv[1], 'w') as o:
-        print >> o, likes
 

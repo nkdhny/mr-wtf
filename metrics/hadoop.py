@@ -447,7 +447,10 @@ class LikedProfiles(ExternalMetricWithLag):
     lag=3
 
     def output(self):
-        return luigi.LocalTarget(path='{}/{}_{}'.format('/home/agolomedov/hw1/metrics', type(self).__name__, self.date))
+        return luigi.contrib.hdfs.HdfsTarget(
+                "/user/agolomedov/likes_{}".format(self.date),
+                format=luigi.contrib.hdfs.PlainDir
+        )
 
     def run(self):
         from .sparkmetrics import run
