@@ -421,7 +421,7 @@ class ProfileLikeMetric(Metric):
 
     def output(self):
         return luigi.contrib.hdfs.HdfsTarget(
-                "/user/agolomedov/facebook_likes_{}".format(self.date),
+                "/user/agolomedov/profile_likes_{}".format(self.date),
                 format=luigi.contrib.hdfs.PlainDir
         )
 
@@ -441,3 +441,16 @@ class ProfileLikeMetric(Metric):
             self._table.put(b"{}#{}+{}".format(profile, self.date, ip), {b't:ts': epoch})
 
             yield profile, ip, epoch
+
+
+class LikedProfiles(ExternalMetricWithLag):
+    lag=3
+
+    def output(self):
+        return luigi.LocalTarget(path='{}/{}_{}'.format('/home/agolomedov/hw1/metrics', type(self).__name__, self.date))
+
+    def run(self):
+        from .sparkmetrics import run
+
+        run.run_spark(
+                [x.path for x in self.input()], self.output().path, '/home/agolomedov/hw1/mr-wtf/metrics/sparkmetrics')
