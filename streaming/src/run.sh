@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-cd ../src
 spark-submit \
       --jars /opt/cloudera/parcels/CDH/jars/spark-streaming-kafka_2.10-1.6.0-cdh5.9.0.jar \
       --master yarn-client \
