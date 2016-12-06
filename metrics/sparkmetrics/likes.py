@@ -54,16 +54,20 @@ def parse_line(line):
 
     return parse_profile(raw_req)
 
-def _count_likes_in_rdd(rdd):
+
+def _count_likes_in_rdd(rdd1, rdd2, rdd3):
+    rdd = rdd1.union(rdd2).union(rdd3)
     return rdd.map(parse_line)\
                 .filter(lambda r: r['code'] == 200 and r['profile'] is not None and r['like'] is True)\
-                .map(lambda r: r['profile'])\
+                .map(lambda r: (r['profile'], r['date']))\
                 .distinct()\
+                .countByKey()\
+                .filter(lambda x: x[1] == 3)\
                 .count()
 
 
 if __name__ == '__main__':
-    files = [sys.argv[2], sys.argv[3], sys.argv[4]]
+    files = (sys.argv[2], sys.argv[3], sys.argv[4])
 
     conf = SparkConf() \
         .setAppName("NkdhnyProfileLikes3Days") \
@@ -72,7 +76,7 @@ if __name__ == '__main__':
     sc = SparkContext(conf=conf)
     files = [sc.textFile(x) for x in files]
 
-    likes = sum([_count_likes_in_rdd(x) for x in files])
+    likes = _count_likes_in_rdd(*files)
 
     sc.parallelize([likes], numSlices=1).saveAsTextFile(sys.argv[1])
 
