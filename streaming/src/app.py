@@ -29,7 +29,7 @@ def _parse_profile(raw_req):
 
 
 def parse_line(line):
-    pat = '([(\d\.)]+) - - \[(.*?)\] "(.*?)" (\d+) (\d+) "(.*?)" "(.*?)"'
+    pat = r'([(\d\.)]+) - - \[(.*?)\] "(.*?)" (\d+) (\d+) "(.*?)" "(.*?)"'
 
     match = re.match(pat, line)
 
@@ -76,15 +76,29 @@ def _setup():
             ssc, AppConfig.zk,
             AppConfig.appId,
             {AppConfig.topic: AppConfig.partitions}
-    ), ssc, sc
+    ).map(lambda x: x[1]), ssc, sc
 
 def main():
 
     log_dstream, ssc, sc = _setup()
 
+    logger = sc._jvm.org.apache.log4j
+    logger.LogManager.getLogger("org").setLevel( logger.Level.ERROR )
+    logger.LogManager.getLogger("akka").setLevel( logger.Level.ERROR )
+    #log = logger.LogManager.getLogger("ru.nkdhny.ysda.streamingapp")
+
+    #log.info('Got app log')
     errors = log_dstream.map(parse_line).cache().filter(lambda rec: rec['code'] != 200)
 
-    errors.window(1).pprint()
+
+    def trace(count):
+        #log.debug('got count of {} failed entries'.format(count))
+        if count.isEmpty():
+            print 'empty'
+        else:
+            print count.collect()
+
+    errors.countByWindow(15, 15).union(errors.countByWindow(60, 15)).union(errors.count().map(lambda x: (1, x)).updateStateByKey(lambda x, y: x[0] + (y if y is not None else 0))).foreachRDD(trace)
 
     ssc.start()
     ssc.awaitTermination()
