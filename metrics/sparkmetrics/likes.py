@@ -61,8 +61,8 @@ def _count_likes_in_rdd(rdd1, rdd2, rdd3):
                 .filter(lambda r: r['code'] == 200 and r['profile'] is not None and r['like'] is True)\
                 .map(lambda r: (r['profile'], r['date']))\
                 .distinct()\
-                .countByKey()\
-                .filter(lambda x: x[1] == 3)\
+                .groupByKey()\
+                .filter(lambda x: len(x[1]) == 3)\
                 .count()
 
 
