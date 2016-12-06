@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import sys
-
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
@@ -41,7 +39,7 @@ def parse_line(line):
 
     record = match.groups()
 
-    #-6 due to dropping tz
+    # -6 due to dropping tz
     req_time = datetime.datetime.strptime(record[1][:-6], "%d/%b/%Y:%H:%M:%S")
 
     raw_req = {
@@ -59,9 +57,9 @@ def parse_line(line):
 
 
 class AppConfig(object):
-    appName="NkdhnyErrorsCount"
-    batchDuration=15
-    appId="nkdhny-spark-streaming-consumer"
+    appName = "NkdhnyErrorsCount"
+    batchDuration = 15
+    appId = "nkdhny-spark-streaming-consumer"
     zk = 'hadoop2-10:2181'
     topic = 'bigdatashad-2016'
     partitions = 4
@@ -78,27 +76,33 @@ def _setup():
             {AppConfig.topic: AppConfig.partitions}
     ).map(lambda x: x[1]), ssc, sc
 
-def main():
 
+def main():
     log_dstream, ssc, sc = _setup()
 
     logger = sc._jvm.org.apache.log4j
-    logger.LogManager.getLogger("org").setLevel( logger.Level.ERROR )
-    logger.LogManager.getLogger("akka").setLevel( logger.Level.ERROR )
-    #log = logger.LogManager.getLogger("ru.nkdhny.ysda.streamingapp")
+    logger.LogManager.getLogger("org").setLevel(logger.Level.ERROR)
+    logger.LogManager.getLogger("akka").setLevel(logger.Level.ERROR)
 
-    #log.info('Got app log')
     errors = log_dstream.map(parse_line).cache().filter(lambda rec: rec['code'] != 200)
 
-
     def trace(count):
-        #log.debug('got count of {} failed entries'.format(count))
         if count.isEmpty():
-            print 'empty'
+            return None
         else:
-            print count.collect()
+            c15, c60, total = count.collect()
 
-    errors.countByWindow(15, 15).union(errors.countByWindow(60, 15)).union(errors.count().map(lambda x: (1, x)).updateStateByKey(lambda x, y: x[0] + (y if y is not None else 0))).foreachRDD(trace)
+            print "15_second_count={}; 60_second_count={}; total_count={};".format(c15, c60, total)
+
+    errors.countByWindow(AppConfig.batchDuration, AppConfig.batchDuration) \
+        .union(
+            errors.countByWindow(4 * AppConfig.batchDuration, AppConfig.batchDuration)) \
+        .union(
+            errors.count() \
+                .map(lambda x: (1, x)) \
+                .updateStateByKey(lambda x, y: x[0] + (y if y is not None else 0)) \
+                .map(lambda x: x[1])
+    ).foreachRDD(trace)
 
     ssc.start()
     ssc.awaitTermination()
@@ -106,4 +110,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
